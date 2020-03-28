@@ -10,10 +10,10 @@ def copy_db(kindle_db_path):
     date_suffix = current_datetime.strftime("%Y-%m-%d_%H-%M-%S")
     backup_db_path = r"/Users/fniu/kindle/kindleconverter/dbs/vocab_{}.db".format(
         date_suffix)
-    print("Will back up Kindle DB at {} to {}..".format(kindle_db_path,
+    print("Will back up Kindle DB at {} to {} ..".format(kindle_db_path,
                                                         backup_db_path))
     shutil.copyfile(kindle_db_path, backup_db_path)
-    print("Backup done.")
+    print("Backed up at {} .".format(backup_db_path))
     return backup_db_path
 
 
@@ -46,6 +46,7 @@ def to_eudic(word_and_context_pairs):
                 .replace("“", "\"")\
                 .replace("\n", " ")
             out_file.write(word + "," + trimmed_context + "\n")
+    print("Wrote csv file at {}".format(eudic_file_path))
 
 
 def main():

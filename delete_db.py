@@ -4,7 +4,7 @@ import sqlite3
 
 
 def reset_kindle_db(kindle_db_path):
-    print("Will reset Kindle DB..")
+    print("Will reset Kindle DB at {} ..".format(kindle_db_path))
 
     conn = sqlite3.connect(kindle_db_path)
 
