@@ -48,27 +48,12 @@ def to_eudic(word_and_context_pairs):
             out_file.write(word + "," + trimmed_context + "\n")
 
 
-def reset_kindle_db(kindle_db_path):
-    print("Will reset Kindle DB..")
-
-    conn = sqlite3.connect(kindle_db_path)
-
-    with conn:
-        conn.execute("DELETE FROM WORDS;")
-        conn.execute("DELETE FROM LOOKUPS;")
-        conn.commit()
-
-    print("Resetting Kindle DB done.")
-
-
 def main():
     kindle_db_path = r"/Volumes/Kindle/system/vocabulary/vocab.db"
 
     backup_db_path = copy_db(kindle_db_path)
     word_and_context_pairs = read_db(backup_db_path)
     to_eudic(word_and_context_pairs)
-
-    reset_kindle_db(kindle_db_path)
 
 
 if __name__ == "__main__":
