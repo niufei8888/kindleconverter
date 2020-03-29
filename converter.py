@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import sqlite3
-
 import datetime
 import shutil
+import sqlite3
+
 from nltk.stem.wordnet import WordNetLemmatizer
 
 
@@ -49,7 +49,8 @@ def normalize_word(wordnet_lemmatizer, word):
 
 
 def to_eudic_csv(word_and_context_pairs, date_suffix):
-    eudic_file_path = r"/Users/fniu/kindle/kindleconverter/csvs/vocab_{}.csv" \
+    eudic_file_path = r"/Users/fniu/kindle/kindleconverter/csvs" \
+                      r"/vocab_{}_raw.csv" \
         .format(date_suffix)
     wordnet_lemmatizer = WordNetLemmatizer()
     with open(eudic_file_path, 'w') as out_file:
