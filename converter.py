@@ -1,8 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+
+import sqlite3
 
 import datetime
 import shutil
-import sqlite3
+from nltk.stem.wordnet import WordNetLemmatizer
 
 
 def copy_db(kindle_db_path, date_suffix):
@@ -33,8 +35,10 @@ def read_db(kindle_db_path):
     return word_and_context_pairs
 
 
-def to_eudic(word_and_context_pairs, date_suffix):
-    eudic_file_path = r"/Users/fniu/kindle/vocab_{}.csv".format(date_suffix)
+def to_eudic_csv(word_and_context_pairs, date_suffix):
+    eudic_file_path = r"/Users/fniu/kindle/kindleconverter/csvs/" \
+                      r"vocab_{}_with_tense.csv" \
+        .format(date_suffix)
     with open(eudic_file_path, 'w') as out_file:
         for word, context in word_and_context_pairs.items():
             trimmed_context = context \
@@ -49,6 +53,24 @@ def to_eudic(word_and_context_pairs, date_suffix):
     return eudic_file_path
 
 
+def remove_tense(eudic_file_path, date_suffix):
+    csv_without_tense = r"/Users/fniu/kindle/kindleconverter/csvs/" \
+                        r"vocab_{}.csv" \
+        .format(date_suffix)
+    wordnet_lemmatizer = WordNetLemmatizer()
+    with open(csv_without_tense, 'w') as out_file:
+        with open(eudic_file_path, 'r') as in_file:
+            for line in in_file.readlines():
+                first_comma_index = line.index(",")
+                word = line[0:first_comma_index]
+                context = line[first_comma_index:-1]
+                word_to_write = wordnet_lemmatizer.lemmatize(word, 'v')
+                if not word_to_write:
+                    word_to_write = word
+                out_file.write(word_to_write + "," + context + "\n")
+    print("Written  csv without tense at {} .".format(csv_without_tense))
+
+
 def main():
     kindle_db_path = r"/Volumes/Kindle/system/vocabulary/vocab.db"
     current_datetime = datetime.datetime.now()
@@ -57,8 +79,11 @@ def main():
 
     backup_db_path = copy_db(kindle_db_path, date_suffix)
     word_and_context_pairs = read_db(backup_db_path)
-    eudic_file_path = to_eudic(word_and_context_pairs, date_suffix)
+    eudic_file_path = to_eudic_csv(word_and_context_pairs, date_suffix)
+    remove_tense(eudic_file_path, date_suffix)
 
 
 if __name__ == "__main__":
+    # NLKT https://www.nltk.org/data.html
+    # env variable required: NLTK_DATA=/Users/fniu/kindle/nltk_data
     main()
