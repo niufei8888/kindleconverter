@@ -1,20 +1,9 @@
 #!/usr/bin/env python
 
-import datetime
-import shutil
+import re
 import sqlite3
 
 from nltk.stem.wordnet import WordNetLemmatizer
-
-
-def copy_db(kindle_db_path, date_suffix):
-    backup_db_path = r"/Users/fniu/kindle/kindleconverter/dbs/vocab_{}.db" \
-        .format(date_suffix)
-    print("Will back up Kindle DB at {} to {} ..".format(kindle_db_path,
-                                                         backup_db_path))
-    shutil.copyfile(kindle_db_path, backup_db_path)
-    print("Backed up at {} .".format(backup_db_path))
-    return backup_db_path
 
 
 def read_db(kindle_db_path):
@@ -50,41 +39,47 @@ def normalize_word(wordnet_lemmatizer, word):
 
 def to_eudic_csv(word_and_context_pairs, date_suffix):
     eudic_file_path = r"/Users/fniu/kindle/kindleconverter/csvs" \
-                      r"/vocab_{}_raw.csv" \
-        .format(date_suffix)
+                      r"/vocab_{}_raw.csv".format(date_suffix)
     wordnet_lemmatizer = WordNetLemmatizer()
+    word_and_context_map = {}
+    for word, context in word_and_context_pairs.items():
+        trimmed_word = word.strip().lower()
+        normalized_word = normalize_word(wordnet_lemmatizer, trimmed_word)
+
+        trimmed_context = context \
+            .replace("’", "'") \
+            .replace(" ", " ") \
+            .replace("—", " ") \
+            .replace("“", "'") \
+            .replace("”", "'") \
+            .replace("\"", "'") \
+            .replace("\n", " ")
+
+        if normalized_word in word_and_context_map:
+            previous_context = word_and_context_map[normalized_word]
+            new_context = previous_context + trimmed_context
+            word_and_context_map[normalized_word] = new_context
+        else:
+            word_and_context_map[normalized_word] = trimmed_context
+
     with open(eudic_file_path, 'w') as out_file:
-        for word, context in word_and_context_pairs.items():
-            trimmed_word = word.strip().lower()
-            normalized_word = normalize_word(wordnet_lemmatizer, trimmed_word)
-
-            trimmed_context = context \
-                .replace("’", "'") \
-                .replace(" ", " ") \
-                .replace("—", " ") \
-                .replace("“", "'") \
-                .replace("”", "'") \
-                .replace("\"", "'") \
-                .replace("\n", " ")
-
-            out_file.write(normalized_word + "," + trimmed_context + "\n")
+        for k, v in word_and_context_map.items():
+            out_file.write(k + "," + v + "\n")
     print("Wrote csv file at {}".format(eudic_file_path))
     return eudic_file_path
 
 
 def main():
-    kindle_db_path = r"/Volumes/Kindle/system/vocabulary/vocab.db"
-    current_datetime = datetime.datetime.now()
-    date_suffix = current_datetime.strftime("%Y-%m-%d_%H-%M-%S")
-    print("date_suffix={}".format(date_suffix))
-
-    backup_db_path = copy_db(kindle_db_path, date_suffix)
-    # date_suffix = r"2020-03-28_11-35-38"
-    # backup_db_path = r"/Users/fniu/kindle/kindleconverter/dbs/vocab_{}.db"\
-    #     .format(date_suffix)
-
+    backup_db_path = \
+        "/Users/fniu/kindle/kindleconverter/dbs/vocab_2020-04-05_14-26-01.db"
+    match = re.search(
+        r"/Users/fniu/kindle/kindleconverter/dbs/vocab_([\w-]+)\.db",
+        backup_db_path)
+    time_string = match.group(1)
+    if not time_string:
+        raise Exception("Not able to parse datetime from " + backup_db_path)
     word_and_context_pairs = read_db(backup_db_path)
-    to_eudic_csv(word_and_context_pairs, date_suffix)
+    to_eudic_csv(word_and_context_pairs, time_string)
 
 
 if __name__ == "__main__":
