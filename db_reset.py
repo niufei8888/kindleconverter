@@ -9,8 +9,7 @@ def reset_kindle_db(kindle_db_path):
     conn = sqlite3.connect(kindle_db_path)
 
     with conn:
-        conn.execute("DELETE FROM WORDS;")
-        conn.execute("DELETE FROM LOOKUPS;")
+        conn.execute("UPDATE WORDS SET category = 100 WHERE category < 100;")
         conn.commit()
 
     print("Resetting Kindle DB done.")

@@ -14,8 +14,9 @@ def read_db(kindle_db_path):
     word_and_context_pairs = {}
     with conn:
         cursor = conn.execute(
-            "SELECT word, usage from "
-            "WORDS INNER JOIN LOOKUPS where LOOKUPS.word_key=WORDS.id;"
+            "SELECT word, usage FROM "
+            "WORDS INNER JOIN LOOKUPS WHERE LOOKUPS.word_key=WORDS.id "
+            "AND category = 0;"
         )
         for row in cursor:
             word_and_context_pairs[row[0]] = row[1]
