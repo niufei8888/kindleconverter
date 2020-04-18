@@ -72,7 +72,7 @@ def to_eudic_csv(word_and_context_pairs, date_suffix):
 
 def main():
     backup_db_path = \
-        "/Users/fniu/kindle/kindleconverter/dbs/vocab_2020-04-05_14-26-01.db"
+        "/Users/fniu/kindle/kindleconverter/dbs/vocab_2020-04-18_13-11-53.db"
     match = re.search(
         r"/Users/fniu/kindle/kindleconverter/dbs/vocab_([\w-]+)\.db",
         backup_db_path)
